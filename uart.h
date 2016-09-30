@@ -81,11 +81,11 @@
  */
 
 // Task macros
-#define uart_start_receiver             UART_TASK_STARTRX = 1
-#define uart_stop_receiver              UART_TASK_STOPRX  = 1
-#define uart_start_transmitter          UART_TASK_STARTTX = 1
-#define uart_stop_transmitter           UART_TASK_STOPTX  = 1
-#define uart_stop_transmitter           UART_TASK_STOPTX  = 1
+#define uart_start_receiver()           UART_TASK_STARTRX = 1
+#define uart_stop_receiver()            UART_TASK_STOPRX  = 1
+#define uart_start_transmitter()        UART_TASK_STARTTX = 1
+#define uart_stop_transmitter()         UART_TASK_STOPTX  = 1
+#define uart_stop_transmitter()         UART_TASK_STOPTX  = 1
 
 // write a zero to clear the event
 #define clear_event(event)              event = 0

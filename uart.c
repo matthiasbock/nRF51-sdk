@@ -47,22 +47,39 @@ void uart_init(
     // set transmitter to "ready"
     UART_EVENT_TXDRDY = 1;
 
+    // set receiver to "nothing received"
+    UART_EVENT_RXDRDY = 0;
+
+    // enable UART peripheral
+    uart_start_receiver();
+    uart_start_transmitter();
     uart_enable();
 }
 
-#ifndef UART_USE_FIFO
 void uart_send_char(char* c)
 {
-    // peripheral switches register UART_EVENT_TXDRDY to 1, when transmission is complete
-    while (UART_EVENT_TXDRDY != 1)
-    {
-        delay_us(18);
-    }
+    // peripheral switches register to 1, when transmission is complete
+    while (UART_EVENT_TXDRDY == 0);
+
+    // clear event
     UART_EVENT_TXDRDY = 0;
 
+    // output character
     uart_write((uint32_t) (*c));
 }
-#endif
+
+void uart_receive_char(char* c)
+{
+    // peripheral switches register to 1, when a byte has been received
+    while (UART_EVENT_RXDRDY == 0);
+
+    // clear event
+    // must be cleared before reading
+    UART_EVENT_RXDRDY = 0;
+
+    // read receiver register
+    *c = (char) uart_read();
+}
 
 #ifdef UART_USE_FIFO
 
