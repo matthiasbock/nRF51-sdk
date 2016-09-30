@@ -3,26 +3,76 @@
  * UART library
  * for the Nordic Semiconductor nRF51 series
  *
+ * Contains methods for operation both with and without usage of a FIFO buffer
+ *
  * Author: Matthias Bock <mail@matthiasbock.net>
  * License: GNU GPLv3
  */
 
 #include "uart.h"
 
-// reserve memory for incoming and outgoing bytes
-struct fifo_s uart_inbuffer, uart_outbuffer;
+void uart_init(
+        uint8_t pin_rx,
+        uint8_t pin_tx,
+        uint8_t pin_rts,
+        uint8_t pin_cts,
+        uint32_t baud,
+        bool parity,
+        bool flowcontrol
+        )
+{
+    // configure pins and pin directions
 
-// work with a pointer to this memory
-struct fifo_s *uart_tx_fifo;
-struct fifo_s *uart_rx_fifo;
+    gpio_config_input(pin_rx);
+    uart_select_pin_as_RXD(pin_rx);
+
+    gpio_config_output(pin_tx);
+    uart_select_pin_as_TXD(pin_tx);
+
+    uart_flow_control_disable();
+    if (flowcontrol)
+    {
+        gpio_config_output(pin_rts);
+        uart_select_pin_as_RTS(pin_rts);
+
+        gpio_config_input(pin_cts);
+        uart_select_pin_as_CTS(pin_cts);
+
+        uart_flow_control_enable();
+    }
+
+    // set port parameters
+    uart_set_baud(baud);
+
+    // set transmitter to "ready"
+    UART_EVENT_TXDRDY = 1;
+
+    uart_enable();
+}
+
+#ifndef UART_USE_FIFO
+void uart_send_char(char* c)
+{
+    // peripheral switches register UART_EVENT_TXDRDY to 1, when transmission is complete
+    while (UART_EVENT_TXDRDY != 1)
+    {
+        delay_us(10);
+    }
+    UART_EVENT_TXDRDY = 0;
+
+    uart_write((uint32_t) (*c));
+}
+#endif
+
+#ifdef UART_USE_FIFO
 
 // we need to know, whether we are already transmitting or not
 volatile bool uart_transmitting = false;
 
 /*
- * Initialize FIFO buffers
+ * Initialize FIFO for buffered operation
  */
-void uart_init_fifo()
+void uart_fifo_init()
 {
     uart_rx_fifo = &uart_inbuffer;
     fifo_init(uart_rx_fifo);
@@ -176,3 +226,5 @@ uint8_t uart_receive(char* buffer, uint8_t max)
 {
     return 0;
 }
+
+#endif // UART_USE_FIFO
