@@ -1,0 +1,9 @@
+*.md text
+*.txt text
+*.c text
+*.h text
+Makefile text
+
+*.o binary
+*.jpg binary
+*.png binary

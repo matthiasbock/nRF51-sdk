@@ -1,0 +1,17 @@
+*~
+.*.swp
+.lock.*
+
+main
+
+*.o
+*.out
+*.elf
+*.bin
+*.hex
+*.map
+
+.cproject
+.project
+.settings/
+
