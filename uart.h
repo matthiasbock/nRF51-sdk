@@ -15,84 +15,77 @@
 
 #include "cortex_m0.h"
 
+#include "gpio.h"
+#include "delay.h"
 #include "strings.h"
 #include "fifo.h"
 
 /*
- * Constants
+ * Registers of the UART peripheral
  */
 
 #define UART_BASE   0x40002000
 
-// Peripheral tasks (see PPI)
-#define STARTRX     0x000   // Start UART receiver
-#define STOPRX      0x004   // Stop UART receiver
-#define STARTTX     0x008   // Start UART transmitter
-#define STOPTX      0x00C   // Stop UART transmitter
-#define SUSPEND     0x01C   // Suspend UART
+// Tasks
+#define UART_TASK_STARTRX     (*(volatile uint32_t*) (UART_BASE+0x000))   // Start UART receiver
+#define UART_TASK_STOPRX      (*(volatile uint32_t*) (UART_BASE+0x004))   // Stop UART receiver
+#define UART_TASK_STARTTX     (*(volatile uint32_t*) (UART_BASE+0x008))   // Start UART transmitter
+#define UART_TASK_STOPTX      (*(volatile uint32_t*) (UART_BASE+0x00C))   // Stop UART transmitter
+#define UART_TASK_SUSPEND     (*(volatile uint32_t*) (UART_BASE+0x01C))   // Suspend UART
 
 // Events
-#define CTS         0x100   // CTS is activated (set low)
-#define NCTS        0x104   // CTS is deactivated (set high)
-#define RXDRDY      0x108   // Data received in RXD
-#define TXDRDY      0x11C   // Data sent from TXD
-#define ERROR       0x124   // Error detected
-#define RXTO        0x144   // Receiver timeout
+#define UART_EVENT_CTS        (*(volatile uint32_t*) (UART_BASE+0x100))   // CTS is activated (set low)
+#define UART_EVENT_NCTS       (*(volatile uint32_t*) (UART_BASE+0x104))   // CTS is deactivated (set high)
+#define UART_EVENT_RXDRDY     (*(volatile uint32_t*) (UART_BASE+0x108))   // Data received in RXD
+#define UART_EVENT_TXDRDY     (*(volatile uint32_t*) (UART_BASE+0x11C))   // Data sent from TXD
+#define UART_EVENT_ERROR      (*(volatile uint32_t*) (UART_BASE+0x124))   // Error detected
+#define UART_EVENT_RXTO       (*(volatile uint32_t*) (UART_BASE+0x144))   // Receiver timeout
 
 // Registers
-#define INTEN       0x300   // Enable or disable interrupt
-#define INTENSET    0x304   // Enable interrupt
-#define INTENCLR    0x308   // Disable interrupt
-#define ERRORSRC    0x480   // Error source
-#define ENABLE      0x500   // Enable UART
-#define PSELRTS     0x508   // Pin select for RTS
-#define PSELTXD     0x50C   // Pin select for TXD
-#define PSELCTS     0x510   // Pin select for CTS
-#define PSELRXD     0x514   // Pin select for RXD
-#define RXD         0x518   // RXD register
-#define TXD         0x51C   // TXD register
-#define BAUDRATE    0x524   // Baud rate
-#define CONFIG      0x56C   // Configuration of parity and hardware flow control
+#define UART_INTEN       (*(volatile uint32_t*) (UART_BASE+0x300))   // Enable or disable interrupt
+#define UART_INTENSET    (*(volatile uint32_t*) (UART_BASE+0x304))   // Enable interrupt
+#define UART_INTENCLR    (*(volatile uint32_t*) (UART_BASE+0x308))   // Disable interrupt
+#define UART_ERRORSRC    (*(volatile uint32_t*) (UART_BASE+0x480))   // Error source
+#define UART_ENABLE      (*(volatile uint32_t*) (UART_BASE+0x500))   // Enable UART
+#define UART_PSELRTS     (*(volatile uint32_t*) (UART_BASE+0x508))   // Pin select for RTS
+#define UART_PSELTXD     (*(volatile uint32_t*) (UART_BASE+0x50C))   // Pin select for TXD
+#define UART_PSELCTS     (*(volatile uint32_t*) (UART_BASE+0x510))   // Pin select for CTS
+#define UART_PSELRXD     (*(volatile uint32_t*) (UART_BASE+0x514))   // Pin select for RXD
+#define UART_RXD         (*(volatile uint32_t*) (UART_BASE+0x518))   // RXD register
+#define UART_TXD         (*(volatile uint32_t*) (UART_BASE+0x51C))   // TXD register
+#define UART_BAUDRATE    (*(volatile uint32_t*) (UART_BASE+0x524))   // Baud rate
+#define UART_CONFIG      (*(volatile uint32_t*) (UART_BASE+0x56C))   // Configuration of parity and hardware flow control
 
 
 // Valid baudrates
-#define baud_1200    0x0004F000
-#define baud_2400    0x0009D000
-#define baud_4800    0x0013B000
-#define baud_9600    0x00275000
-#define baud_14400   0x003B0000
-#define baud_19200   0x004EA000
-#define baud_28800   0x0075F000
-#define baud_38400   0x009D5000
-#define baud_57600   0x00EBF000
-#define baud_76800   0x013A9000
-#define baud_115200  0x01D7E000
-#define baud_230400  0x03AFB000
-#define baud_250000  0x04000000
-#define baud_460800  0x075F7000
-#define baud_921600  0x0EBED000
-#define baud_1M      0x10000000
+#define uart_baud_1200    0x0004F000
+#define uart_baud_2400    0x0009D000
+#define uart_baud_4800    0x0013B000
+#define uart_baud_9600    0x00275000
+#define uart_baud_14400   0x003B0000
+#define uart_baud_19200   0x004EA000
+#define uart_baud_28800   0x0075F000
+#define uart_baud_38400   0x009D5000
+#define uart_baud_57600   0x00EBF000
+#define uart_baud_76800   0x013A9000
+#define uart_baud_115200  0x01D7E000
+#define uart_baud_230400  0x03AFB000
+#define uart_baud_250000  0x04000000
+#define uart_baud_460800  0x075F7000
+#define uart_baud_921600  0x0EBED000
+#define uart_baud_1M      0x10000000
 
 
 /*
  * Macros for writing data to registers
  */
 
-// Tasks
-#define uart_start_receiver             *(volatile uint32_t*) (UART_BASE+STARTRX) = 1
-#define uart_stop_receiver              *(volatile uint32_t*) (UART_BASE+STOPRX)  = 1
-#define uart_start_transmitter          *(volatile uint32_t*) (UART_BASE+STARTTX) = 1
-#define uart_stop_transmitter           *(volatile uint32_t*) (UART_BASE+STOPTX)  = 1
-#define uart_stop_transmitter           *(volatile uint32_t*) (UART_BASE+STOPTX)  = 1
-
-
-// Events
-#define uart_event_CTS                  *(volatile uint32_t*) (UART_BASE+CTS)
-#define uart_event_NCTS                 *(volatile uint32_t*) (UART_BASE+NCTS)
-#define uart_event_RXDRDY               *(volatile uint32_t*) (UART_BASE+RXDRDY)
-#define uart_event_TXDRDY               *(volatile uint32_t*) (UART_BASE+TXDRDY)
-#define uart_event_ERROR                *(volatile uint32_t*) (UART_BASE+ERROR)
-#define uart_event_RXTO                 *(volatile uint32_t*) (UART_BASE+RXTO)
+// Task macros
+#define uart_start_receiver             UART_TASK_STARTRX = 1
+#define uart_stop_receiver              UART_TASK_STOPRX  = 1
+#define uart_start_transmitter          UART_TASK_STARTTX = 1
+#define uart_stop_transmitter           UART_TASK_STOPTX  = 1
+#define uart_stop_transmitter           UART_TASK_STOPTX  = 1
 
 // write a zero to clear the event
 #define clear_event(event)              event = 0
@@ -103,54 +96,62 @@
 // that's not working:
 //#define set_uart_interrupt_handler(pointer)     *(volatile uint32_t*) (UART_ISR_VECTOR_ADDRESS) = (uint32_t) pointer // +1 to indicate Thumb instruction set
 
-#define uart_interrupt_enable                   interrupt_enable(UART_INTERRUPT)
-#define uart_interrupt_disable                  interrupt_disable(UART_INTERRUPT)
+#define uart_interrupt_enable()                 interrupt_enable(UART_INTERRUPT)
+#define uart_interrupt_disable()                interrupt_disable(UART_INTERRUPT)
 
-#define uart_interrupt_upon_RXDRDY_enable       *(volatile uint32_t*) (UART_BASE+INTENSET) = (1 << 2)
-#define uart_interrupt_upon_RXDRDY_disable      *(volatile uint32_t*) (UART_BASE+INTENCLR) = (1 << 2)
+#define uart_interrupt_upon_RXDRDY_enable()     UART_INTENSET = (1 << 2)
+#define uart_interrupt_upon_RXDRDY_disable()    UART_INTENCLR = (1 << 2)
 
-#define uart_interrupt_upon_TXDRDY_enable       *(volatile uint32_t*) (UART_BASE+INTENSET) = (1 << 7)
-#define uart_interrupt_upon_TXDRDY_disable      *(volatile uint32_t*) (UART_BASE+INTENCLR) = (1 << 7)
+#define uart_interrupt_upon_TXDRDY_enable()     UART_INTENSET = (1 << 7)
+#define uart_interrupt_upon_TXDRDY_disable()    UART_INTENCLR = (1 << 7)
 
-#define uart_interrupt_upon_ERROR_enable        *(volatile uint32_t*) (UART_BASE+INTENSET) = (1 << 9)
-#define uart_interrupt_upon_ERROR_disable       *(volatile uint32_t*) (UART_BASE+INTENCLR) = (1 << 9)
+#define uart_interrupt_upon_ERROR_enable()      UART_INTENSET = (1 << 9)
+#define uart_interrupt_upon_ERROR_disable()     UART_INTENCLR = (1 << 9)
 
-#define uart_interrupt_upon_RXTO_enable         *(volatile uint32_t*) (UART_BASE+INTENSET) = (1 << 17)
-#define uart_interrupt_upon_RXTO_disable        *(volatile uint32_t*) (UART_BASE+INTENCLR) = (1 << 17)
+#define uart_interrupt_upon_RXTO_enable()       UART_INTENSET = (1 << 17)
+#define uart_interrupt_upon_RXTO_disable()      UART_INTENCLR = (1 << 17)
 
 // Configuration
-#define uart_disable                    *(volatile uint32_t*) (UART_BASE+ENABLE) =  (*(volatile uint32_t*) (UART_BASE+ENABLE)) & 0xFFFFFFF8
-#define uart_enable                     *(volatile uint32_t*) (UART_BASE+ENABLE) = ((*(volatile uint32_t*) (UART_BASE+ENABLE)) & 0xFFFFFFF8) + 0x4
+#define uart_disable()                  UART_ENABLE =  UART_ENABLE & 0xFFFFFFF8
+#define uart_enable()                   UART_ENABLE = (UART_ENABLE & 0xFFFFFFF8) + 0x4
 
 // only configure pins while UART is disabled
-#define uart_select_pin_as_TXD(pin)     *(volatile uint32_t*) (UART_BASE+PSELTXD) = pin
-#define uart_select_pin_as_RXD(pin)     *(volatile uint32_t*) (UART_BASE+PSELRXD) = pin
-#define uart_select_pin_as_RTS(pin)     *(volatile uint32_t*) (UART_BASE+PSELRTS) = pin
-#define uart_select_pin_as_CTS(pin)     *(volatile uint32_t*) (UART_BASE+PSELCTS) = pin
+#define uart_select_pin_as_TXD(pin)     UART_PSELTXD = pin
+#define uart_select_pin_as_RXD(pin)     UART_PSELRXD = pin
+#define uart_select_pin_as_RTS(pin)     UART_PSELRTS = pin
+#define uart_select_pin_as_CTS(pin)     UART_PSELCTS = pin
 
 // signal shall not be externalized to any pin
 #define UART_PIN_DISABLE                0xFFFFFFFF
 
-#define uart_read                     ((*(volatile uint32_t*) (UART_BASE+RXD)) & 0x000000FF)
-#define uart_write(b)                   *(volatile uint32_t*) (UART_BASE+TXD) = b
+#define uart_read()                    (UART_RXD & 0x000000FF)
+#define uart_write(b)                   UART_TXD = b
 
-#define uart_set_baud(rate)             *(volatile uint32_t*) (UART_BASE+BAUDRATE) = rate
+#define uart_set_baud(rate)             UART_BAUDRATE = rate
 
-#define uart_set_parity_exclude         *(volatile uint32_t*) (UART_BASE+CONFIG) =  (*(volatile uint32_t*) (UART_BASE+CONFIG)) & 0xFFFFFFF1
-#define uart_set_parity_include         *(volatile uint32_t*) (UART_BASE+CONFIG) = ((*(volatile uint32_t*) (UART_BASE+CONFIG)) & 0xFFFFFFF1) + 0xE
+#define uart_set_parity_exclude()       UART_CONFIG =  UART_CONFIG & 0xFFFFFFF1
+#define uart_set_parity_include()       UART_CONFIG = (UART_CONFIG & 0xFFFFFFF1) + 0xE
 
-#define uart_flow_control_disable       *(volatile uint32_t*) (UART_BASE+CONFIG) =  (*(volatile uint32_t*) (UART_BASE+CONFIG)) & 0xFFFFFFFE
-#define uart_flow_control_enable        *(volatile uint32_t*) (UART_BASE+CONFIG) = ((*(volatile uint32_t*) (UART_BASE+CONFIG)) & 0xFFFFFFFE) + 0x1
+#define uart_flow_control_disable()     UART_CONFIG =  UART_CONFIG & 0xFFFFFFFE
+#define uart_flow_control_enable()      UART_CONFIG = (UART_CONFIG & 0xFFFFFFFE) + 0x1
 
 
 /*
- * Functions
+ * Functions provided by this library
  */
-uint32_t strlen(char* s);
+void    uart_init(uint8_t pin_rx, uint8_t pin_tx, uint8_t pin_rts, uint8_t pin_cts, uint32_t baud, bool parity, bool flowcontrol);
+void    uart_send_char(char* c);
+void    uart_receive_char(char* c);
+void    uart_receive_line(char* line, uint8_t* length);
 
-void    uart_init_fifo();
-void    uart_send(char* buffer, uint8_t length);
-void    uart_send_string(char* s);
-uint8_t uart_receive(char* buffer, uint8_t max);
+// if you wish to use the functions below, add the corresponding define to your main.c
+#ifdef UART_USE_FIFO
+void    uart_fifo_init(fifo_t* outfifo, fifo_t* infifo);
+void    uart_fifo_send_char(fifo_t* outfifo, char* c);
+void    uart_fifo_send_buffer(fifo_t* outfifo, char* buffer, uint8_t length);
+void    uart_fifo_send_string(fifo_t* outfifo, char* s);
+void    uart_fifo_receive_char(fifo_t* infifo, char* c);
+void    uart_fifo_receive_line(fifo_t* infifo, char* line, uint8_t* length);
+#endif
 
 #endif // UART_H
