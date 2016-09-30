@@ -11,7 +11,8 @@
 
 void delay_us(uint32_t us)
 {
-    // CPU operating at 16 MHz
+    // CPU is operating at 16 MHz:
+    // 16 instructions take 1 us
     asm volatile (
         "start: nop\n\t"
         "nop\n\t"

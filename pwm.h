@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-#include "timer.h"
+#include "timers.h"
 #include "gpiote.h"
 #include "ppi.h"
 

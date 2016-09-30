@@ -56,7 +56,7 @@ void uart_send_char(char* c)
     // peripheral switches register UART_EVENT_TXDRDY to 1, when transmission is complete
     while (UART_EVENT_TXDRDY != 1)
     {
-        delay_us(10);
+        delay_us(18);
     }
     UART_EVENT_TXDRDY = 0;
 

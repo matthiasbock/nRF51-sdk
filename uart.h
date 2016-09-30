@@ -139,7 +139,15 @@
 /*
  * Functions provided by this library
  */
-void    uart_init(uint8_t pin_rx, uint8_t pin_tx, uint8_t pin_rts, uint8_t pin_cts, uint32_t baud, bool parity, bool flowcontrol);
+void    uart_init(
+            uint8_t pin_rx,
+            uint8_t pin_tx,
+            uint8_t pin_rts,
+            uint8_t pin_cts,
+            uint32_t baud,
+            bool parity,
+            bool flowcontrol
+            );
 void    uart_send_char(char* c);
 void    uart_receive_char(char* c);
 void    uart_receive_line(char* line, uint8_t* length);
