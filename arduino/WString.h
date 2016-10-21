@@ -26,7 +26,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#ifdef ARDUINO
 #include <avr/pgmspace.h>
+#endif
+
+#ifndef itoa
+#include "itoa.h"
+#endif
 
 // When compiling programs with this class, the following gcc parameters
 // dramatically increase performance and memory (RAM) efficiency, typically
