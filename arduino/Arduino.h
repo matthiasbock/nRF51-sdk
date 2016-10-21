@@ -1,13 +1,20 @@
 #ifndef Arduino_h
 #define Arduino_h
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#include <avr/pgmspace.h>
+#ifdef ARDUINO
+include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+
+#elif NRF51
+#include "nrf_gpio.h"
+#include "nrf_delay.h"
+#endif
 
 #include "binary.h"
 
@@ -22,6 +29,10 @@ extern "C"{
 #define OUTPUT 0x1
 #define INPUT_PULLUP 0x2
 
+#ifdef true
+#undef true
+#undef false
+#endif
 #define true 0x1
 #define false 0x0
 
@@ -117,6 +128,7 @@ void detachInterrupt(uint8_t);
 void setup(void);
 void loop(void);
 
+#ifdef ARDUINO
 // Get the bit location within the hardware port of the given virtual pin.
 // This comes from the pins_*.c file for the active board configuration.
 
@@ -182,15 +194,19 @@ extern const uint8_t PROGMEM digital_pin_to_timer_PGM[];
 #define TIMER5A 15
 #define TIMER5B 16
 #define TIMER5C 17
+#endif // #ifdef ARDUINO
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
 #ifdef __cplusplus
-#include "WCharacter.h"
 #include "WString.h"
+
+#ifdef ARDUINO
+#include "WCharacter.h"
 #include "HardwareSerial.h"
+#endif
 
 uint16_t makeWord(uint16_t w);
 uint16_t makeWord(byte h, byte l);
@@ -210,6 +226,8 @@ long map(long, long, long, long, long);
 
 #endif
 
+#ifdef ARDUINO
 #include "pins_arduino.h"
+#endif
 
 #endif
