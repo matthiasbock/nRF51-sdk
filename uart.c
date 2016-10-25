@@ -12,10 +12,10 @@
 #include "uart.h"
 
 void uart_init(
-        uint8_t pin_rx,
-        uint8_t pin_tx,
-        uint8_t pin_rts,
-        uint8_t pin_cts,
+        uint32_t pin_rx,
+        uint32_t pin_tx,
+        uint32_t pin_rts,
+        uint32_t pin_cts,
         uint32_t baud,
         bool parity,
         bool flowcontrol

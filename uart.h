@@ -58,22 +58,22 @@
 
 
 // Valid baudrates
-#define uart_baud_1200    0x0004F000
-#define uart_baud_2400    0x0009D000
-#define uart_baud_4800    0x0013B000
-#define uart_baud_9600    0x00275000
-#define uart_baud_14400   0x003B0000
-#define uart_baud_19200   0x004EA000
-#define uart_baud_28800   0x0075F000
-#define uart_baud_38400   0x009D5000
-#define uart_baud_57600   0x00EBF000
-#define uart_baud_76800   0x013A9000
-#define uart_baud_115200  0x01D7E000
-#define uart_baud_230400  0x03AFB000
-#define uart_baud_250000  0x04000000
-#define uart_baud_460800  0x075F7000
-#define uart_baud_921600  0x0EBED000
-#define uart_baud_1M      0x10000000
+#define UART_BAUD_1200    0x0004F000
+#define UART_BAUD_2400    0x0009D000
+#define UART_BAUD_4800    0x0013B000
+#define UART_BAUD_9600    0x00275000
+#define UART_BAUD_14400   0x003B0000
+#define UART_BAUD_19200   0x004EA000
+#define UART_BAUD_28800   0x0075F000
+#define UART_BAUD_38400   0x009D5000
+#define UART_BAUD_57600   0x00EBF000
+#define UART_BAUD_76800   0x013A9000
+#define UART_BAUD_115200  0x01D7E000
+#define UART_BAUD_230400  0x03AFB000
+#define UART_BAUD_250000  0x04000000
+#define UART_BAUD_460800  0x075F7000
+#define UART_BAUD_921600  0x0EBED000
+#define UART_BAUD_1M      0x10000000
 
 
 /*
@@ -140,10 +140,10 @@
  * Functions provided by this library
  */
 void    uart_init(
-            uint8_t pin_rx,
-            uint8_t pin_tx,
-            uint8_t pin_rts,
-            uint8_t pin_cts,
+            uint32_t pin_rx,
+            uint32_t pin_tx,
+            uint32_t pin_rts,
+            uint32_t pin_cts,
             uint32_t baud,
             bool parity,
             bool flowcontrol
