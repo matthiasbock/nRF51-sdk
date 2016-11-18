@@ -55,8 +55,8 @@
 #define SPI_BITORDER_MSBFIRST           0   // Most significant bit is shifted out first
 #define SPI_BITORDER_LSBFIRST           1   // Least significant bit is shifted out first
 
-#define SPI_CLOCKPHASE_LEADING          0       // Data is sampled on the leading edge of clock and shifted out on the trailing edge
-#define SPI_CLOCKPHASE_TRAILING        (1 << 1) // Data is sampled on the trailing edge of clock and shifted out on the leading edge
+#define SPI_CLOCKPHASE_LEADING          0       // Data is shifted out on the leading edge of the clock
+#define SPI_CLOCKPHASE_TRAILING        (1 << 1) // Data is shifted out on the trailing edge of the clock
 
 #define SPI_CLOCKPOLARITY_ACTIVEHIGH    0   // self explaining ...
 #define SPI_CLOCKPOLARITY_ACTIVELOW    (1 << 2)
@@ -80,6 +80,13 @@
     SPI_PSELSCK (spi_device) = pin_SCK;     \
     SPI_PSELMOSI(spi_device) = pin_MOSI;    \
     SPI_PSELMISO(spi_device) = pin_MISO;    \
+};
+
+// all relevant configurations as a macro
+#define spi_configure(spi_device, frequency, bitorder, clockpolarity, clockphase) \
+{ \
+    SPI_FREQUENCY(spi_device) = frequency; \
+    SPI_CONFIG(spi_device) = bitorder | clockpolarity | clockphase; \
 };
 
 // Read/Write
