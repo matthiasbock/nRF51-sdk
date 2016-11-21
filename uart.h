@@ -18,7 +18,10 @@
 #include "gpio.h"
 #include "delay.h"
 #include "strings.h"
+
+#ifdef UART_USE_FIFO
 #include "fifo.h"
+#endif
 
 /*
  * Registers of the UART peripheral
