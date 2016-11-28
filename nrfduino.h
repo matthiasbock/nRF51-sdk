@@ -10,7 +10,7 @@
 #ifndef NRFDUINO_H
 #define NRFDUINO_H
 
-#define NRFDUINO_PIN_ONBOARD_LED 28
+#define NRFDUINO_PIN_LED   28
 
 #define NRFDUINO_PIN_A0    30
 #define NRFDUINO_PIN_A1    1
