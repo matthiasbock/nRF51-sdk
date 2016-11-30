@@ -59,7 +59,9 @@ void uart_init(
 void uart_send_char(char* c)
 {
     // peripheral switches register to 1, when transmission is complete
-    while (UART_EVENT_TXDRDY == 0);
+    uint32_t timeout = 0;
+    while (UART_EVENT_TXDRDY == 0 && timeout < 100)
+        timeout++;
 
     // clear event
     UART_EVENT_TXDRDY = 0;
