@@ -13,8 +13,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "cortex_m0.h"
-
 #include "gpio.h"
 #include "delay.h"
 #include "strings.h"
