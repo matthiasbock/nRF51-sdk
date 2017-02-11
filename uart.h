@@ -150,6 +150,8 @@ void    uart_init(
             bool flowcontrol
             );
 void    uart_send_char(char* c);
+void    uart_send_bytes(char* s, uint8_t length);
+void    uart_send_string(char* s);
 void    uart_receive_char(char* c);
 void    uart_receive_line(char* line, uint8_t* length);
 

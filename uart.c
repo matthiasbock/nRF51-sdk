@@ -70,6 +70,20 @@ void uart_send_char(char* c)
     uart_write((uint32_t) (*c));
 }
 
+void uart_send_bytes(char* s, uint8_t length)
+{
+    for (uint8_t i=0; i<length; i++)
+    {
+        uart_send_char(s++);
+    }
+}
+
+void uart_send_string(char* s)
+{
+    // use strlen() to determine position of null terminator
+    uart_send_bytes(s, strlen(s));
+}
+
 void uart_receive_char(char* c)
 {
     // peripheral switches register to 1, when a byte has been received
