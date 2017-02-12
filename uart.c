@@ -87,7 +87,9 @@ void uart_send_string(char* s)
 void uart_receive_char(char* c)
 {
     // peripheral switches register to 1, when a byte has been received
-    while (UART_EVENT_RXDRDY == 0);
+    uint32_t timeout = 0;
+    while (UART_EVENT_RXDRDY == 0 && timeout < 100)
+        timeout++;
 
     // clear event
     // must be cleared before reading
