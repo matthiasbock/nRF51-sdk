@@ -56,25 +56,33 @@ void uart_init(
     uart_enable();
 }
 
-void uart_send_char(char* c)
+void uart_send_char(char c)
 {
+    /*
+     * The timeout value should ideally derive from the actual baudrate.
+     * CPU runs @ 16 MHz.
+     * Slowest baud is 1200 bps.
+     * Therefore transmission of 10 bits (8x data + start + stop + parity)
+     * takes no longer than 16e6 / (1200/10) = 133333 cpu cycles.
+     */
+    uint32_t timeout = 133333;
+
     // peripheral switches register to 1, when transmission is complete
-    uint32_t timeout = 0;
-    while (UART_EVENT_TXDRDY == 0 && timeout < 100)
-        timeout++;
+    while (UART_EVENT_TXDRDY == 0 && timeout > 0)
+        timeout--;
 
     // clear event
     UART_EVENT_TXDRDY = 0;
 
     // output character
-    uart_write((uint32_t) (*c));
+    uart_write((uint32_t) c);
 }
 
 void uart_send_bytes(char* s, uint8_t length)
 {
     for (uint8_t i=0; i<length; i++)
     {
-        uart_send_char(s++);
+        uart_send_char(*s++);
     }
 }
 
@@ -86,10 +94,15 @@ void uart_send_string(char* s)
 
 void uart_receive_char(char* c)
 {
+    /*
+     * The timeout value is calculated as in
+     * function uart_send_char(), see above.
+     */
+    uint32_t timeout = 133333;
+
     // peripheral switches register to 1, when a byte has been received
-    uint32_t timeout = 0;
-    while (UART_EVENT_RXDRDY == 0 && timeout < 100)
-        timeout++;
+    while (UART_EVENT_RXDRDY == 0 && timeout > 0)
+        timeout--;
 
     // clear event
     // must be cleared before reading

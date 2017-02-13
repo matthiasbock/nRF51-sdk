@@ -34,6 +34,7 @@ void delay_us(uint32_t us)
     );
 }
 
+// TODO: something's broken with this function, it doesn't work anymore...
 void delay_ms(uint32_t ms)
 {
     // TODO: use Timer instead of NOPs for longer timespans,

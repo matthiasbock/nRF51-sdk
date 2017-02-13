@@ -149,16 +149,23 @@ void    uart_init(
             bool parity,
             bool flowcontrol
             );
-void    uart_send_char(char* c);
+void    uart_send_char(char c);
 void    uart_send_bytes(char* s, uint8_t length);
 void    uart_send_string(char* s);
 void    uart_receive_char(char* c);
 void    uart_receive_line(char* line, uint8_t* length);
 
-// if you wish to use the functions below, add the corresponding define to your main.c
+/*
+ * To use a FIFO buffer,
+ * define one and add #define UART_USE_FIFO
+ * in your code
+ */
 #ifdef UART_USE_FIFO
+
+// TODO: implementation is incomplete:
+
 void    uart_fifo_init(fifo_t* outfifo, fifo_t* infifo);
-void    uart_fifo_send_char(fifo_t* outfifo, char* c);
+void    uart_fifo_send_char(fifo_t* outfifo, char c);
 void    uart_fifo_send_buffer(fifo_t* outfifo, char* buffer, uint8_t length);
 void    uart_fifo_send_string(fifo_t* outfifo, char* s);
 void    uart_fifo_receive_char(fifo_t* infifo, char* c);
