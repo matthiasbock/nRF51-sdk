@@ -12,10 +12,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "gpio.h"
 #include "delay.h"
-#include "strings.h"
 
 #ifdef UART_USE_FIFO
 #include "fifo.h"

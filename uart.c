@@ -88,8 +88,10 @@ void uart_send_bytes(char* s, uint8_t length)
 
 void uart_send_string(char* s)
 {
-    // use strlen() to determine position of null terminator
-    uart_send_bytes(s, strlen(s));
+    while (*s != 0)
+    {
+        uart_send_char(*s++);
+    }
 }
 
 void uart_receive_char(char* c)
