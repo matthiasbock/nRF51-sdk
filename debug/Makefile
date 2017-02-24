@@ -15,7 +15,7 @@ pinreset:
 	# das funktioniert so nicht, falsche Adresse:
 	#$(OPENOCD) -f $(OPENOCD_CFG) -c "init; reset halt; sleep 1; mww phys 0x4001e504 2; mww 0x40000544 1; reset; shutdown;"
 
-debug:
+openocd:
 	$(OPENOCD) -c "set WORKAREASIZE 0;" -f $(OPENOCD_CFG) -c "init; arm semihosting enable;"
 	
 gdb:
