@@ -91,4 +91,4 @@
 
 // Read/Write
 #define spi_read(spi_device, word_pointer)              *(word_pointer) = SPI_RXD(spi_device)
-#define spi_write(spi_device, word)                 SPI_TXD(spi_device) = word
+#define spi_write(spi_device, word)                 SPI_TXD(spi_device) = word & 0x000000FF
