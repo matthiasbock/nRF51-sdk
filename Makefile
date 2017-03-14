@@ -49,9 +49,9 @@ LDFLAGS += -lrdimon
 # Build targets
 #
 
-all: uart.o delay.o fifo.o nrf51_startup.o #pwm.o radio.o strings.o timers.o
+all: uart.o delay.o fifo.o nrf51_startup.o pwm.o radio.o timers.o
 
-%.o: %.c %s
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

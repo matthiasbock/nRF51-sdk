@@ -19,8 +19,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "strings.h"
-
 // nRF51-specific includes
 //#include "cortex_m0.h"
 #include "nrf_gpio.h"
