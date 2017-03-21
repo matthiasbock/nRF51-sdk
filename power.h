@@ -26,12 +26,9 @@
 /*
  * Register macros
  */
-#define enable_ram_bank0    POWER_RAMON = POWER_RAMON_ONRAM0
-#define enable_ram_bank1    POWER_RAMON = POWER_RAMON_ONRAM1
-#define enable_ram_bank2    POWER_RAMONB = POWER_RAMONB_ONRAM2
-#define enable_ram_bank3    POWER_RAMONB = POWER_RAMONB_ONRAM3
-#define enable_all_ram_banks \
-            POWER_RAMON  = POWER_RAMON_ONRAM0  | POWER_RAMON_ONRAM1; \
-            POWER_RAMONB = POWER_RAMONB_ONRAM2 | POWER_RAMONB_ONRAM3;
+#define enable_ram_bank0()  POWER_RAMON |= POWER_RAMON_ONRAM0
+#define enable_ram_bank1()  POWER_RAMON |= POWER_RAMON_ONRAM1
+#define enable_ram_bank2()  POWER_RAMONB |= POWER_RAMONB_ONRAM2
+#define enable_ram_bank3()  POWER_RAMONB |= POWER_RAMONB_ONRAM3
 
 #endif // POWER_H
