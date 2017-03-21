@@ -1,6 +1,5 @@
-
 /*
- * GCC linker script for the nRF51
+ * GCC linker script for the nRF51822
  *
  * Author: Matthias Bock <mail@matthiasbock.net>
  * License: GNU GPLv3
@@ -29,17 +28,34 @@ SECTIONS
 {
     .text :
     {
-        code_begin = .;
+        /* interrupt vector table */
         sdk/nrf51_startup.o(.vectors)
+
+        /* program code */
+        code_begin = .;
         *(.text*)
         code_end = .;
+
+        /* initialized constants */
+        *(.rodata*)
+
+        /* section to support exception handling for C++ */
+        *(.eh_frame*)
+
+        text_end = .;
     } > FLASH
 
+
     /*
-     * Reserve RAM space for initialized variables and constants
-     * https://en.wikipedia.org/wiki/Data_segment 
+     * Initialized variables (non-constant)
+     * will be copied to RAM upon startup
+     * https://en.wikipedia.org/wiki/Data_segment
+     *
+     * VMA is immediately after .text section
+     * LMA is the beginning of RAM
      */
     .data :
+    AT ( ADDR (.text) + SIZEOF (.text) )
     {
         data_begin = .;
         *(.data*)

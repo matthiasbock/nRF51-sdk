@@ -1,7 +1,8 @@
-
-/*
- * Startup code for the nRF51
- * Required to setup the ARM Cortex M0 before it can be used
+/**
+ * Startup code for the nRF51822
+ *
+ * Required to setup the ARM Cortex M0
+ * before any programs can run on it
  *
  * Author: Matthias Bock <mail@matthiasbock.net>
  * License: GNU GPLv3
@@ -13,8 +14,8 @@
 /*
  * Addresses defined in the linker script
  */
-extern uint32_t code_begin;
 extern uint32_t code_end;
+extern uint32_t text_end;
 
 extern uint32_t data_begin;
 extern uint32_t data_end;
@@ -150,18 +151,23 @@ extern int main();
  */
 void Reset_Handler()
 {
-    // copy initialized variables from flash memory to the data section in RAM
-    uint8_t *src, *dst;
-    src = (uint8_t*) &code_end;
-    dst = (uint8_t*) &data_begin;
-    while (dst < (uint8_t*) &data_end)
-        *dst++ = *src++;
+    /*
+     * Copy non-constant variables
+     * from flash memory (behind code)
+     * to RAM (data section)
+     */
+    uint32_t *src;
+    uint32_t *dst;
+    src = &text_end;
+    dst = &data_begin;
+    while (dst <= &data_end)
+        *(dst++) = *(src++);
 
     // clear the bss section: initialize uninitialized variables with zeros
     // clear the heap section: memory shall be filled with zeros after malloc
-    dst = (uint8_t*) &bss_begin;
-    while (dst < (uint8_t*) &heap_end)
-        *dst++ = 0;
+    dst = &bss_begin;
+    while (dst < &heap_end)
+        *(dst++) = 0;
 
     // the stack does not need to be filled with zeros,
     // as all pop'ed values will necessarily have previously been push'ed
