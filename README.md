@@ -1,6 +1,7 @@
 # nRF51-sdk
 
 This repository contains an old SDK I once compiled for more convenient nRF51822 firmware development.
+It simplifies the creation of nRF51822 projects, but does not contain a Bluetooth Low Energy stack.
 
 This repo is abandoned.
 It will be kept live here, since there seem to be some users out there, and for historic purposes.
