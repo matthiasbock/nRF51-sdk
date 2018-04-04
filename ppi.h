@@ -17,7 +17,7 @@
 /*
  * Tasks
  */
-static typedef struct
+typedef struct
 {
     uint32_t ENABLE;
     uint32_t DISABLE;
@@ -34,7 +34,7 @@ static typedef struct
 #define PPI_CHENCLR     (*(volatile uint32_t*) (PPI_BASE+0x508))
 
 // channels: event endpoints, task endpoints
-static typedef struct
+typedef struct
 {
     uint32_t EEP;
     uint32_t TEP;
