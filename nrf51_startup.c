@@ -20,8 +20,8 @@ extern uint32_t text_end;
 extern uint32_t data_begin;
 extern uint32_t data_end;
 
-extern uint32_t bss_begin;
-extern uint32_t bss_end;
+extern uint32_t __bss_start__;
+extern uint32_t __bss_end__;
 
 extern uint32_t heap_begin;
 extern uint32_t heap_end;
@@ -88,7 +88,7 @@ void SWI5_Handler()         WEAK_ALIAS(Default_Handler);
  * Exception vector table
  * http://community.arm.com/docs/DOC-8769
  */
-void *vectors[] __attribute__ ((section(".vectors"))) =
+void* vectors[] __attribute__ ((section(".vectors"))) =
 {
     &stack_end,
 
@@ -165,7 +165,7 @@ void Reset_Handler()
 
     // clear the bss section: initialize uninitialized variables with zeros
     // clear the heap section: memory shall be filled with zeros after malloc
-    dst = &bss_begin;
+    dst = &__bss_start__;
     while (dst < &heap_end)
         *(dst++) = 0;
 
