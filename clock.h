@@ -11,7 +11,11 @@
 #ifndef CLOCK_H
 #define CLOCK_H
 
-#define CLOCK_BASE                   0x40000000
+
+#include <stdint.h>
+
+
+#define CLOCK_BASE                  0x40000000
 
 // Tasks
 #define CLOCK_TASK_HFCLKSTART       (*(volatile uint32_t*) (CLOCK_BASE+0x000))    // Start HFCLK crystal oscillator
@@ -39,5 +43,25 @@
 #define CLOCK_LFCLKSRC              (*(volatile uint32_t*) (CLOCK_BASE+0x518))    // Clock source for the LFCLK
 #define CLOCK_CTIV                  (*(volatile uint32_t*) (CLOCK_BASE+0x538))    // Calibration timer interval
 #define CLOCK_XTALFREQ              (*(volatile uint32_t*) (CLOCK_BASE+0x550))    // Crystal frequency
+
+// Values
+#define LFCLKSRC_RC     0
+#define LFCLKSRC_XTAL   1
+#define LFCLKSRC_HFCLK  2
+
+#define CLOCK_XTALFREQ_16MHZ    0xFF
+#define CLOCK_XTALFREQ_32MHZ    0x00
+
+// Macros
+#define lfclk_is_running()      ((CLOCK_LFCLKSTAT & (1 << 16)) > 0)
+#define lfclk_start()           CLOCK_TASK_LFCLKSTART = 1
+#define lfclk_stop()            CLOCK_TASK_LFCLKSTOP = 1
+
+
+/**
+ * Configure and start low frequency oscillator
+ */
+void init_lfclk();
+
 
 #endif
