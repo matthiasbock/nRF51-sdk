@@ -29,11 +29,29 @@ SECTIONS
         /* initialized constants */
         *(.rodata*)
 
+	/* when linking standard library functions, sections .init and .fini are added */
+        KEEP (*(.init))
+        KEEP (*(.fini))
+
         /* section to support exception handling for C++ */
         *(.eh_frame*)
 
         text_end = .;
     } > FLASH
+
+    .ARM.extab :
+    {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > FLASH
+
+    .ARM :
+    {
+        __exidx_start = .;
+        *(.ARM.exidx*)
+        __exidx_end = .;
+    } > FLASH
+
+    __end_code = .;
 
     /*
      * Initialized variables (non-constant)
